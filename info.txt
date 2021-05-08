@@ -1,0 +1,14 @@
+
+https://www.google.com/search?q=simple+2d+drawing+python&oq=simple+2d+drawing+python&aqs=chrome..69i57j0i22i30.10087j0j7&sourceid=chrome&ie=UTF-8
+
+https://github.com/openai/gym/blob/master/docs/creating-environments.md
+
+https://towardsdatascience.com/creating-a-custom-openai-gym-environment-for-stock-trading-be532be3910e
+
+
+- simpler algs than k-rl2, gym?
+- run alg on existing env 
+- add own env w/o ui
+- run env on alg
+- add ui, test against manual steps
+- run ui on env
