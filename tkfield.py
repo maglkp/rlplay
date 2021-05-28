@@ -1,6 +1,8 @@
 from tkinter import *
 from numpy import random
 import time
+import curses
+import numpy as np
 
 # https://stackoverflow.com/questions/25430786/moving-balls-in-tkinter-canvas/25431690#25431690
 # https://gordonlesti.com/use-tkinter-without-mainloop/
@@ -24,8 +26,9 @@ class TkField:
         self.canvas = Canvas(self.frame, bg='white', width=wh, height=wh)
         self.canvas.pack(expand=True, fill=BOTH)
 
-        self.robots = [(2, 2), (2, 13), (13, 2), (13, 13), (4, 7)]
+        self.robots = [(3, 3), (2, 12), (13, 3), (13, 11), (6, 7), (8, 5), (8, 10)]
         self.convict = (8, 7)
+        self.steps = 0
 
     def loop(self):
         # Button(self.root, text="Quit", command=self.root.destroy).pack()
@@ -49,9 +52,35 @@ class TkField:
         #print((x1, y1, x2, y2))
         self.canvas.create_rectangle(x1, y1, x2, y2, fill=color, width=0)
 
+    def step_manual(self, action):
+        self.robots = [self.move_box(robot) for robot in self.robots]
+        self.convict = self.move_box_manual(self.convict, action)
+        return self.check_caught()
+
+    def check_caught(self):
+        return any(self.check_things_touch(r, self.convict) for r in self.robots)        
+
+    def check_things_touch(self, r1, r2):
+        diff1 = np.abs(r1[0] - r2[0])
+        diff2 = np.abs(r1[1] - r2[1])
+        return (diff1 <= 1 and  diff2 == 0) or (diff2 <= 1 and  diff1 == 0)
+
     def step(self):
         self.robots = [self.move_box(robot) for robot in self.robots]
         self.convict = self.move_box(self.convict)
+
+    def move_box_manual(self, box, action):        
+        if action == self.NO_MOVE or not self.can_move(box, action):
+            return box
+
+        if action == self.UP:
+            return (box[0], box[1] - 1)
+        elif action == self.RIGHT:
+            return (box[0] + 1, box[1])
+        elif action == self.DOWN:
+            return (box[0], box[1] + 1)
+        else:  # action == self.LEFT:
+            return (box[0] - 1, box[1])
 
     def move_box(self, box):
         action = random.randint(self.num_actions)
@@ -74,19 +103,51 @@ class TkField:
                (action == self.LEFT and box[0] > 0)
 
 
+
 field = TkField()
 
+#while True:
+
+
+stdscr = curses.initscr()
+curses.cbreak()
+stdscr.keypad(1)
+
+stdscr.addstr(0,10,"Hit 'q' to quit")
+stdscr.refresh()
+
 field.render()
-time.sleep(1)
-field.step()
-field.render()
-time.sleep(1)
-field.step()
-field.render()
+key = ''
+end = False
+while key != ord('q') and not end:
+    key = stdscr.getch()
+    stdscr.addch(20, 25, key)
+    stdscr.refresh()
+
+    if key == curses.KEY_UP:
+       end = field.step_manual(field.UP)
+    elif key == curses.KEY_DOWN: 
+        end = field.step_manual(field.DOWN)
+    elif key == curses.KEY_LEFT: 
+        end = field.step_manual(field.LEFT)
+    elif key == curses.KEY_RIGHT:
+        end = field.step_manual(field.RIGHT)        
+    
+    field.render()
+
+curses.endwin()
+
+
+ 
+ 
+# field.render()
+# time.sleep(1)
+# field.step()
+# field.render()
 
 #field.loop()
 
-time.sleep(1)
+# time.sleep(1)
 
 # for i in range(20):    
 #     field.render()

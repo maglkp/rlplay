@@ -5,10 +5,11 @@ https://github.com/openai/gym/blob/master/docs/creating-environments.md
 
 https://towardsdatascience.com/creating-a-custom-openai-gym-environment-for-stock-trading-be532be3910e
 
+https://medium.com/@apoddar573/making-your-own-custom-environment-in-gym-c3b65ff8cdaa
 
-- simpler algs than k-rl2, gym?
-- run alg on existing env 
-- add own env w/o ui
-- run env on alg
-- add ui, test against manual steps
+- simpler algs than k-rl2, gym? [x]
+- run alg on existing env [v]
+- add own env w/o ui [v]
+- run env on alg [v]
+- add ui, test against manual steps [v]
 - run ui on env
