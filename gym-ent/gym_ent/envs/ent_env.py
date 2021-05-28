@@ -2,6 +2,8 @@ import gym
 from gym import error, spaces, utils
 from gym.utils import seeding
 import numpy as np
+from tkinter import *
+import time
 
 class EntEnv(gym.Env):
     metadata = {'render.modes': ['human']}
@@ -21,6 +23,17 @@ class EntEnv(gym.Env):
         self.state = None
         self.steps = None
         #print("Init ENT")
+    
+        self.box_pixels = 50
+        self.init_tkinter()
+
+    def init_tkinter(self):
+        wh = self.arena_size * self.box_pixels
+        self.root = Tk()
+        self.frame = Frame(self.root, width=wh, height=wh)
+        self.frame.pack(expand=True, fill=BOTH)
+        self.canvas = Canvas(self.frame, bg='white', width=wh, height=wh)
+        self.canvas.pack(expand=True, fill=BOTH)
 
     def step(self, action):
         self.steps += 1        
@@ -39,19 +52,40 @@ class EntEnv(gym.Env):
         return np.array(self.state), reward, done, info
 
     def reset(self):
+        #self.root.destroy()
+        #self.init_tkinter()
         #print("RST ENT")
         self.state = [(8, 7), (3, 3), (2, 12), (13, 3), (13, 11), (6, 7), (8, 5), (8, 10)]
         self.steps = 0
         return np.array(self.state)
 
     def render(self, mode='human', close=False):
-        pass
+        self.canvas.delete("all")
+
+        convict = self.state[0:1]
+        robots =  self.state[1:]
+        for robot in robots:
+            self.render_box(robot, 'blue')
+        self.render_box(convict[0], 'red')
+        self.root.update()
+
+        if(close):
+            self.root.destroy()
+        else:
+            time.sleep(.5)
 
     def can_move(self, box, action):
         return (action == self.UP and box[1] > 0) or \
                (action == self.RIGHT and box[0] < self.arena_size - 1) or \
                (action == self.DOWN and box[1] < self.arena_size - 1) or \
                (action == self.LEFT and box[0] > 0)
+
+    def render_box(self, position, color):
+        x1 = position[0] * self.box_pixels
+        x2 = (position[0] + 1) * self.box_pixels
+        y1 = position[1] * self.box_pixels
+        y2 = (position[1] + 1) * self.box_pixels
+        self.canvas.create_rectangle(x1, y1, x2, y2, fill=color, width=0)
 
     def move_all(self, action):
         convict = self.state[0:1]
