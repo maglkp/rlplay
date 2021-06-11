@@ -18,12 +18,12 @@ class EntEnv(gym.Env):
         self.MAX_STEPS = 10
         self.arena_size = 16
 
-        self.action_space = gym.spaces.Discrete(4)
-        self.observation_space = gym.spaces.Box(low=0, high=255, shape=(8, 2), dtype=np.uint8)
         self.state = None
         self.steps = None
-        #print("Init ENT")
-    
+        self.reset()
+        self.action_space = gym.spaces.Discrete(4)
+        self.observation_space = gym.spaces.Box(low=0, high=255, shape=(self.state.shape[0], 2), dtype=np.uint8)
+
         self.box_pixels = 50
         self.init_tkinter()
 
@@ -32,18 +32,18 @@ class EntEnv(gym.Env):
         self.root = Tk()
         self.frame = Frame(self.root, width=wh, height=wh)
         self.frame.pack(expand=True, fill=BOTH)
-        self.canvas = Canvas(self.frame, bg='white', width=wh, height=wh)
+        self.canvas = Canvas(self.frame, bg='grey', width=wh, height=wh)
         self.canvas.pack(expand=True, fill=BOTH)
 
     def step(self, action):
         self.steps += 1        
         done = False
-        reward = 1
+        reward = 0
 
         self.state = self.move_all(action)
         if self.check_caught():
             done = True
-            reward = 0
+            reward = -100
         elif self.steps >= self.MAX_STEPS:
             done = True
             reward = 100
@@ -55,7 +55,11 @@ class EntEnv(gym.Env):
         #self.root.destroy()
         #self.init_tkinter()
         #print("RST ENT")
-        self.state = [(8, 7), (3, 3), (2, 12), (13, 3), (13, 11), (6, 7), (8, 5), (8, 10)]
+        #self.state = np.array([(8, 7), (3, 3), (2, 12), (13, 3), (13, 11), (6, 7), (8, 5), (8, 10)])
+        self.state = np.array([(8, 7), (3, 3), (2, 12), (13, 3), \
+                                (13, 11), (11, 3), (11, 11), (6, 7), \
+                                (8, 5), (8, 9), (8, 3), (8, 11)])
+
         self.steps = 0
         return np.array(self.state)
 
@@ -65,8 +69,8 @@ class EntEnv(gym.Env):
         convict = self.state[0:1]
         robots =  self.state[1:]
         for robot in robots:
-            self.render_box(robot, 'blue')
-        self.render_box(convict[0], 'red')
+            self.render_box(robot, 'navy')
+        self.render_box(convict[0], 'orange')
         self.root.update()
 
         if(close):
@@ -90,9 +94,9 @@ class EntEnv(gym.Env):
     def move_all(self, action):
         convict = self.state[0:1]
         robots =  self.state[1:]
-        robots = [self.move_box_random(robot) for robot in robots]
-        convict[0] = self.move_box(convict[0], action)
-        return convict + robots
+        robots = np.array([self.move_box_random(robot) for robot in robots])
+        convict[0] = np.array(self.move_box(convict[0], action))
+        return np.concatenate((convict, robots))
 
     def move_box(self, box, action):
         if action == self.NO_MOVE or not self.can_move(box, action):
