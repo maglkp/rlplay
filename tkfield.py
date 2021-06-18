@@ -28,8 +28,10 @@ class TkField:
         self.canvas.pack(expand=True, fill=BOTH)
 
         self.robots = [(3, 3), (2, 12), (13, 3), (13, 11), (11, 3), (11, 11), (6, 7), (8, 5), (8, 9), (8, 3), (8, 11)]
+        self.loot = (11, 9)
         self.convict = (8, 7)
         self.steps = 0
+        self.loot_boxes_collected = 0
 
     def loop(self):
         # Button(self.root, text="Quit", command=self.root.destroy).pack()
@@ -41,6 +43,7 @@ class TkField:
         for robot in self.robots:
             self.render_box(robot, 'navy')
         self.render_box(self.convict, 'orange')
+        self.render_box(self.loot, 'darkgreen')
         self.root.update()
 
         # self.canvas.pack(expand=True, fill=BOTH)
@@ -56,10 +59,21 @@ class TkField:
     def step_manual(self, action):
         self.robots = [self.move_box(robot) for robot in self.robots]
         self.convict = self.move_box_manual(self.convict, action)
+        if self.check_things_on_same_spot(self.loot, self.convict):
+            self.loot_boxes_collected += 1
+            loot_pos = int(self.arena_size / 4)
+            h = int(self.arena_size / 2)
+            x_wind = random.randint(h)
+            y_wind = random.randint(h)
+            self.loot = (loot_pos + x_wind, loot_pos + y_wind)
+
         return self.check_caught()
 
     def check_caught(self):
         return any(self.check_things_touch(r, self.convict) for r in self.robots)
+
+    def check_things_on_same_spot(self, r1, r2):
+        return r1[0] == r2[0] and r1[1] == r2[1]
 
     def check_things_touch(self, r1, r2):
         diff1 = np.abs(r1[0] - r2[0])
@@ -71,33 +85,33 @@ class TkField:
         self.convict = self.move_box(self.convict)
 
     def move_box_manual(self, box, action):
-        if action == self.NO_MOVE or not self.can_move(box, action):
+        if action == self.NO_MOVE or not self.not_blocked_by_wall(box, action):
             return box
 
         if action == self.UP:
-            return (box[0], box[1] - 1)
+            return box[0], box[1] - 1
         elif action == self.RIGHT:
-            return (box[0] + 1, box[1])
+            return box[0] + 1, box[1]
         elif action == self.DOWN:
-            return (box[0], box[1] + 1)
+            return box[0], box[1] + 1
         else:  # action == self.LEFT:
-            return (box[0] - 1, box[1])
+            return box[0] - 1, box[1]
 
     def move_box(self, box):
         action = random.randint(self.num_actions)
-        if action == self.NO_MOVE or not self.can_move(box, action):
+        if action == self.NO_MOVE or not self.not_blocked_by_wall(box, action):
             return box
 
         if action == self.UP:
-            return (box[0], box[1] - 1)
+            return box[0], box[1] - 1
         elif action == self.RIGHT:
-            return (box[0] + 1, box[1])
+            return box[0] + 1, box[1]
         elif action == self.DOWN:
-            return (box[0], box[1] + 1)
+            return box[0], box[1] + 1
         else:  # action == self.LEFT:
-            return (box[0] - 1, box[1])
+            return box[0] - 1, box[1]
 
-    def can_move(self, box, action):
+    def not_blocked_by_wall(self, box, action):
         return (action == self.UP and box[1] > 0) or \
                (action == self.RIGHT and box[0] < self.arena_size - 1) or \
                (action == self.DOWN and box[1] < self.arena_size - 1) or \
