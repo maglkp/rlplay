@@ -1,0 +1,1 @@
+from fixed_treasure.envs.fixed_treasure import FixedTreasure

@@ -6,7 +6,7 @@ from tkinter import *
 import time
 
 
-class EntEnv(gym.Env):
+class FixedTreasure(gym.Env):
     metadata = {'render.modes': ['human']}
 
     def __init__(self):
@@ -16,7 +16,7 @@ class EntEnv(gym.Env):
         self.LEFT = 3
         self.NO_MOVE = 4
         self.num_actions = 5
-        self.MAX_STEPS = 25
+        self.MAX_STEPS = 10
         self.arena_size = 16
 
         self.state = None
@@ -45,40 +45,22 @@ class EntEnv(gym.Env):
         convict = self.state[0:1][0]
         loot = self.state[1:2][0]
 
-        # reward = self.loot_boxes_collected*5 + self.distance_score(convict, loot) *2
         reward = self.distance_score(convict, loot)
-        # reward = 0
+        #reward = 0
         if self.check_things_on_same_spot(loot, convict):
-            # print("loot box collected")
-            self.loot_boxes_collected += 1
-            loot_pos = int(self.arena_size / 4)
-            h = int(self.arena_size / 2)
-            x_wind = np.random.randint(h)
-            y_wind = np.random.randint(h)
-            loot = (loot_pos + x_wind, loot_pos + y_wind)
-            # reward = 1
-
-        self.state[1] = loot
-        if self.check_caught():
+            reward = 10
             done = True
-            reward = -200
         elif self.steps >= self.MAX_STEPS:
             done = True
-            reward = self.loot_boxes_collected * 20
+            reward = -10
 
-        info = {}
+        print('reward=' + str(reward))
+        info = {'reward': reward, 'mystr': 'uuuc'}
         return np.array(self.state), reward, done, info
 
     def reset(self):
-        # self.root.destroy()
-        # self.init_tkinter()
-        # print("RST ENT")
         # self.state = np.array([(8, 7), (3, 3), (2, 12), (13, 3), (13, 11), (6, 7), (8, 5), (8, 10)])
-        self.state = np.array([(8, 7), (11, 9), (3, 3), (2, 12), (13, 3), \
-                               (13, 11), (11, 3), (11, 11), (6, 7), \
-                               (8, 5), (8, 9), (8, 3), (8, 11)])
-
-        self.loot_boxes_collected = 0
+        self.state = np.array([(8, 7), (10, 10)])
         self.steps = 0
         return np.array(self.state)
 
@@ -87,14 +69,12 @@ class EntEnv(gym.Env):
 
         convict = self.state[0:1]
         loot_box = self.state[1:2]
-        robots = self.state[2:]
-        for robot in robots:
-            self.render_box(robot, 'navy')
+
         self.render_box(convict[0], 'orange')
         self.render_box(loot_box[0], 'darkgreen')
         self.root.update()
 
-        if (close):
+        if close:
             self.root.destroy()
         else:
             time.sleep(.4)
@@ -143,10 +123,8 @@ class EntEnv(gym.Env):
     def move_all(self, action):
         convict = self.state[0:1]
         loot_box = self.state[1:2]
-        robots = self.state[2:]
-        robots = np.array([self.move_box_random(robot) for robot in robots])
         convict[0] = np.array(self.move_box(convict[0], action))
-        return np.concatenate((convict, loot_box, robots))
+        return np.concatenate((convict, loot_box))
 
     def move_box(self, box, action):
         if action == self.NO_MOVE or not self.can_move(box, action):
@@ -161,32 +139,6 @@ class EntEnv(gym.Env):
         else:  # action == self.LEFT:
             return box[0] - 1, box[1]
 
-    def move_box_random(self, box):
-        action = np.random.randint(self.num_actions)
-        if action == self.NO_MOVE or not self.can_move(box, action):
-            return box
-
-        if action == self.UP:
-            return box[0], box[1] - 1
-        elif action == self.RIGHT:
-            return box[0] + 1, box[1]
-        elif action == self.DOWN:
-            return box[0], box[1] + 1
-        else:  # action == self.LEFT:
-            return box[0] - 1, box[1]
-
-
-    def check_caught(self):
-        convict = self.state[0]
-        loot = self.state[1]
-        ### [Fixed] BUG this was robots = self.state[1:]
-        robots = self.state[2:]
-        return any(self.check_things_touch(r, convict) for r in robots)
-
     def check_things_on_same_spot(self, r1, r2):
         return r1[0] == r2[0] and r1[1] == r2[1]
 
-    def check_things_touch(self, r1, r2):
-        diff1 = np.abs(r1[0] - r2[0])
-        diff2 = np.abs(r1[1] - r2[1])
-        return (diff1 <= 1 and diff2 == 0) or (diff2 <= 1 and diff1 == 0)

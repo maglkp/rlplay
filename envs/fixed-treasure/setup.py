@@ -1,6 +1,6 @@
 from setuptools import setup
 
-setup(name='gym_ent',
-      version='2.0.0',
+setup(name='fixed_treasure',
+      version='1.0.2',
       install_requires=['gym']
 )
