@@ -1,6 +1,5 @@
-# A test env for GYM
+# A test env for GYM, invoke from repo main dir:
 pip install -e gym-ent
-
 
 # materials
 https://towardsdatascience.com/beginners-guide-to-custom-environments-in-openai-s-gym-989371673952

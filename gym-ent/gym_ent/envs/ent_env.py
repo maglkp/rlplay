@@ -5,6 +5,7 @@ import numpy as np
 from tkinter import *
 import time
 
+
 class EntEnv(gym.Env):
     metadata = {'render.modes': ['human']}
 
@@ -15,7 +16,7 @@ class EntEnv(gym.Env):
         self.LEFT = 3
         self.NO_MOVE = 4
         self.num_actions = 5
-        self.MAX_STEPS = 80
+        self.MAX_STEPS = 25
         self.arena_size = 16
 
         self.state = None
@@ -37,45 +38,45 @@ class EntEnv(gym.Env):
         self.canvas.pack(expand=True, fill=BOTH)
 
     def step(self, action):
-        self.steps += 1        
+        self.steps += 1
         done = False
-        reward = 0
-
         self.state = self.move_all(action)
 
-        # add a fraction of the reward closer to loot they are
-        # and more distant from closest robot
         convict = self.state[0:1][0]
         loot = self.state[1:2][0]
+
+        # reward = self.loot_boxes_collected*5 + self.distance_score(convict, loot) *2
+        reward = self.distance_score(convict, loot)
+        # reward = 0
         if self.check_things_on_same_spot(loot, convict):
-            #print("loot box collected")
+            # print("loot box collected")
             self.loot_boxes_collected += 1
             loot_pos = int(self.arena_size / 4)
             h = int(self.arena_size / 2)
             x_wind = np.random.randint(h)
             y_wind = np.random.randint(h)
             loot = (loot_pos + x_wind, loot_pos + y_wind)
-            reward = 1
+            # reward = 1
 
         self.state[1] = loot
         if self.check_caught():
             done = True
-            reward = -30
+            reward = -200
         elif self.steps >= self.MAX_STEPS:
             done = True
-            reward = self.loot_boxes_collected * 2 + 1
+            reward = self.loot_boxes_collected * 20
 
         info = {}
         return np.array(self.state), reward, done, info
 
     def reset(self):
-        #self.root.destroy()
-        #self.init_tkinter()
-        #print("RST ENT")
-        #self.state = np.array([(8, 7), (3, 3), (2, 12), (13, 3), (13, 11), (6, 7), (8, 5), (8, 10)])
+        # self.root.destroy()
+        # self.init_tkinter()
+        # print("RST ENT")
+        # self.state = np.array([(8, 7), (3, 3), (2, 12), (13, 3), (13, 11), (6, 7), (8, 5), (8, 10)])
         self.state = np.array([(8, 7), (11, 9), (3, 3), (2, 12), (13, 3), \
-                                (13, 11), (11, 3), (11, 11), (6, 7), \
-                                (8, 5), (8, 9), (8, 3), (8, 11)])
+                               (13, 11), (11, 3), (11, 11), (6, 7), \
+                               (8, 5), (8, 9), (8, 3), (8, 11)])
 
         self.loot_boxes_collected = 0
         self.steps = 0
@@ -86,14 +87,14 @@ class EntEnv(gym.Env):
 
         convict = self.state[0:1]
         loot_box = self.state[1:2]
-        robots =  self.state[2:]
+        robots = self.state[2:]
         for robot in robots:
             self.render_box(robot, 'navy')
         self.render_box(convict[0], 'orange')
         self.render_box(loot_box[0], 'darkgreen')
         self.root.update()
 
-        if(close):
+        if (close):
             self.root.destroy()
         else:
             time.sleep(.4)
@@ -111,10 +112,38 @@ class EntEnv(gym.Env):
         y2 = (position[1] + 1) * self.box_pixels
         self.canvas.create_rectangle(x1, y1, x2, y2, fill=color, width=0)
 
+    # >> > distance([1, 1], [4, 4])
+    # 1.8
+    # >> > distance([1, 1], [1, 1])
+    # 3.0
+    # >> > distance([1, 1], [1, 2])
+    # 2.8
+    # >> > distance([1, 1], [1, 5])
+    # 2.2
+    # >> > distance([1, 1], [1, 5])
+    # 2.2
+    # >> > distance([1, 1], [1, 6])
+    # 2.0
+    # >> > distance([1, 1], [14, 14])
+    # -2.2
+    # >> > distance([1, 1], [5, 5])
+    # 1.4000000000000001
+    # >> > distance([1, 1], [7, 7])
+    # 0.6000000000000001
+    # >> > distance([1, 1], [4, 4])
+    # 1.8
+    # >> > distance([1, 1], [5, 5])
+    # 1.4000000000000001
+    def distance_score(self, position1, position2):
+        max_distance = self.arena_size - 1
+        moves_x = np.abs(position1[0] - position2[0])
+        moves_y = np.abs(position1[1] - position2[1])
+        return 0.05 * (max_distance - moves_x) + 0.05 * (max_distance - moves_y)
+
     def move_all(self, action):
         convict = self.state[0:1]
         loot_box = self.state[1:2]
-        robots =  self.state[2:]
+        robots = self.state[2:]
         robots = np.array([self.move_box_random(robot) for robot in robots])
         convict[0] = np.array(self.move_box(convict[0], action))
         return np.concatenate((convict, loot_box, robots))
@@ -148,7 +177,7 @@ class EntEnv(gym.Env):
 
     def check_caught(self):
         convict = self.state[0]
-        robots =  self.state[1:]
+        robots = self.state[1:]
         return any(self.check_things_touch(r, convict) for r in robots)
 
     def check_things_on_same_spot(self, r1, r2):
@@ -157,4 +186,4 @@ class EntEnv(gym.Env):
     def check_things_touch(self, r1, r2):
         diff1 = np.abs(r1[0] - r2[0])
         diff2 = np.abs(r1[1] - r2[1])
-        return (diff1 <= 1 and  diff2 == 0) or (diff2 <= 1 and diff1 == 0)
+        return (diff1 <= 1 and diff2 == 0) or (diff2 <= 1 and diff1 == 0)

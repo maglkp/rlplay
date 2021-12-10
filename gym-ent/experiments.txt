@@ -1,0 +1,69 @@
+https://soygema.github.io/starcraftII_machine_learning/#1
+https://towardsdatascience.com/reinforcement-learning-framework-and-toolkits-gym-and-unity-1e047889c59a
+https://winder.ai/a-comparison-of-reinforcement-learning-frameworks-dopamine-rllib-keras-rl-coach-trfl-tensorforce-coach-and-more/
+#1
+reward = self.loot_boxes_collected*5 at the end or -50 if caught
+nb_steps_warmup=10,100,500
+train_interval=1,10
+
+all fail going in one direction
+
+
+#2
+sars = SARSAAgent(model=model, nb_actions=nb_actions, nb_steps_warmup=0, train_interval=0)
+sars = SARSAAgent(model=model, nb_actions=nb_actions, nb_steps_warmup=1000, train_interval=50)
+
+
+# big a-64-32-16
+model = Sequential()
+model.add(Flatten(input_shape=(1,) + env.observation_space.shape))
+model.add(Dense(64))
+model.add(Activation('relu'))
+model.add(Dense(32))
+model.add(Activation('relu'))
+model.add(Dense(16))
+model.add(Activation('relu'))
+model.add(Dense(nb_actions))
+model.add(Activation('softmax'))
+
+sars = SARSAAgent(model=model, nb_actions=nb_actions, nb_steps_warmup=2000, train_interval=100)
+sars.compile(optimizer='adam')
+sars.fit(env, nb_steps=400000, visualize=False, verbose=1)
+
+Interval 39 (380000 steps performed)
+10000/10000 [==============================] - 9s 925us/step - reward: 6.5206
+2794 episodes - episode_reward: 23.338 [0.000, 109.000] - loss: 408.847 - mean_q: 1.000
+
+7min
+always left action
+2/10
+
+# simple model
+model = Sequential()
+model.add(Flatten(input_shape=(1,) + env.observation_space.shape))
+model.add(Dense(nb_actions))
+model.add(Activation('softmax'))
+print(model.summary())
+
+#sars = SARSAAgent(model=model, nb_actions=nb_actions, nb_steps_warmup=1000, train_interval=100)
+sars = SARSAAgent(model=model, nb_actions=nb_actions, nb_steps_warmup=2000, train_interval=100)
+sars.compile(optimizer='adam')
+
+Interval 39 (380000 steps performed)
+10000/10000 [==============================] - 7s 663us/step - reward: 6.5221
+2779 episodes - episode_reward: 23.471 [0.000, 109.000] - loss: 426.759 - mean_q: 1.000
+
+
+5min
+always left action
+2/10
+
+
+# big a-64-32-16
+always right action
+
+0/-100/100
+
+Interval 39 (380000 steps performed)
+10000/10000 [==============================] - 11s 1ms/step - reward: 5.1600
+1168 episodes - episode_reward: 44.178 [-100.000, 100.000] - loss: 571.383 - mean_q: 1.00
