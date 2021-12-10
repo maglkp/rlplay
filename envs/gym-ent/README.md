@@ -1,4 +1,4 @@
-# A test env for GYM, invoke from repo main dir:
+# A test env for GYM, invoke from envs/:
 pip install -e gym-ent
 
 # materials
