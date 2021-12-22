@@ -1,0 +1,41 @@
+# 1
++/-10 points get to target/timeout
+distance * 0.05 on every step
+max steps=10
+
+# 1a
+Simple model
+SARSAAgent(model=model, nb_actions=nb_actions, nb_steps_warmup=1 [?], train_interval=1)
+sars.fit(env, nb_steps=50000, visualize=False, verbose=1)
+2m
+
+[fail, go to top right]
+
+# 1b
+model.add(Dense(64, activation='relu'))
+model.add(Dense(32, activation='relu'))
+model.add(Dense(16, activation='relu'))
+model.add(Dense(nb_actions))
+model.add(Activation('softmax'))
+
+SARSAAgent(model=model, nb_actions=nb_actions, nb_steps_warmup=0, train_interval=1)
+sars.fit(env, nb_steps=50000, visualize=False, verbose=1)
+2m
+
+Interval 5 (40000 steps performed)
+10000/10000 [==============================] - 41s 4ms/step - reward: 0.4084
+
+[good]
+
+# 1c
+sars.fit(env, nb_steps=10000, visualize=False, verbose=1)
+
+[fail, go right]
+
+# 2
++/-10 points get to target/timeout
+no distance bonus on every step
+max steps=10
+sars.fit(env, nb_steps=300000, visualize=False, verbose=1)
+
+[fail, go down]

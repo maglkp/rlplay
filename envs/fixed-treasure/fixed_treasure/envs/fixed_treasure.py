@@ -56,7 +56,7 @@ class FixedTreasure(gym.Env):
 
         # print('reward=' + str(reward))
         # print('state=' + str(self.state))
-        info = {'reward': reward, 'mystr': 'uuuc'}
+        info = {'reward': reward, 'mystr': 'uuuctest'}
         return np.array(self.state), reward, done, info
 
     def reset(self):
