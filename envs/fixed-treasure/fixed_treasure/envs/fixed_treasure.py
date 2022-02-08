@@ -22,7 +22,7 @@ class FixedTreasure(gym.Env):
         self.state = None
         self.steps = None
         self.reset()
-        self.action_space = gym.spaces.Discrete(4)
+        self.action_space = gym.spaces.Discrete(5)
         self.observation_space = gym.spaces.Box(low=0, high=255, shape=(self.state.shape[0], 2), dtype=np.uint8)
         self.loot_boxes_collected = 0
 
@@ -48,20 +48,21 @@ class FixedTreasure(gym.Env):
         reward = self.distance_score(convict, loot)
         #reward = 0
         if self.check_things_on_same_spot(loot, convict):
-            reward = 10
             done = True
+            reward = 100
         elif self.steps >= self.MAX_STEPS:
             done = True
-            reward = -10
+            reward = -100
 
-        # print('reward=' + str(reward))
+        print('convict=' + str(convict) + ' loot=' + str(loot) + ' reward:' + str(reward))
         # print('state=' + str(self.state))
-        info = {'reward': reward, 'mystr': 'uuuctest'}
+        info = {}
         return np.array(self.state), reward, done, info
 
     def reset(self):
         # self.state = np.array([(8, 7), (3, 3), (2, 12), (13, 3), (13, 11), (6, 7), (8, 5), (8, 10)])
-        self.state = np.array([(8, 7), (10, 10)])
+        #self.state = np.array([(8, 7), (10, 10)])
+        self.state = np.array([(8, 7), (8, 8)])
         self.steps = 0
         return np.array(self.state)
 

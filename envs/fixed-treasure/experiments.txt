@@ -39,3 +39,18 @@ max steps=10
 sars.fit(env, nb_steps=300000, visualize=False, verbose=1)
 
 [fail, go down]
+
+
+3. 
+64/32/16
+sars = SARSAAgent(model=model, nb_actions=nb_actions, nb_steps_warmup=0, train_interval=1)
+sars.fit(env, nb_steps=1000000, visualize=False, verbose=1)
+
+fail [!]
+
+
+4. 
+model = A2C('MlpPolicy', 'random_treasure:random_treasure-v1').learn(300000)
+model.save("a2c_fixed_treasure")
+
+a. 

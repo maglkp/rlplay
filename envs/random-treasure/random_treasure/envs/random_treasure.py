@@ -29,6 +29,9 @@ class RandomTreasure(gym.Env):
         self.box_pixels = 50
         self.init_tkinter()
 
+    def get_action_meanings(self):
+        return ['UP', 'RIGHT', 'DOWN', 'LEFT', 'NO_MOVE']
+
     def init_tkinter(self):
         wh = self.arena_size * self.box_pixels
         self.root = Tk()
@@ -48,11 +51,11 @@ class RandomTreasure(gym.Env):
         reward = self.distance_score(convict, loot)
         # reward = 0
         if self.check_things_on_same_spot(loot, convict):
-            reward = 10
+            reward = 20
             done = True
         elif self.steps >= self.MAX_STEPS:
             done = True
-            reward = -10
+            reward = -30
 
         # print('reward=' + str(reward))
         # print('state=' + str(self.state))
@@ -61,7 +64,8 @@ class RandomTreasure(gym.Env):
 
     def reset(self):
         # self.state = np.array([(8, 7), (3, 3), (2, 12), (13, 3), (13, 11), (6, 7), (8, 5), (8, 10)])
-        possible_treasure_locations = [(10, 9), (6, 5), (10, 5), (6, 9)]
+        #possible_treasure_locations = [(10, 9), (6, 5), (10, 5), (6, 9)]
+        possible_treasure_locations = [(10, 10), (5, 4)]
         treasure = random.choice(possible_treasure_locations)
         self.state = np.array([(8, 7), treasure])
         self.steps = 0
@@ -99,7 +103,7 @@ class RandomTreasure(gym.Env):
         max_distance = self.arena_size - 1
         moves_x = np.abs(position1[0] - position2[0])
         moves_y = np.abs(position1[1] - position2[1])
-        return 0.05 * (max_distance - moves_x) + 0.05 * (max_distance - moves_y)
+        return 0.08 * (max_distance - moves_x) + 0.08 * (max_distance - moves_y)
 
     def move_all(self, action):
         convict = self.state[0:1]

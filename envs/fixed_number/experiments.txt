@@ -1,0 +1,7 @@
+# +/- 100 at the end, end when on goal
+200k not OK
+
+# +1 when on goal, 0 otherwise, fixed len episodes
+A2C 200k solved
+A2C 20k solved
+
