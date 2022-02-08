@@ -34,3 +34,7 @@ sars.fit(env, nb_steps=250000, visualize=False, verbose=1)
 sars.fit(env, nb_steps=10000, visualize=False, verbose=1)
 
 [N/A]
+
+
+# shower function, A2C 300k
+[fail]

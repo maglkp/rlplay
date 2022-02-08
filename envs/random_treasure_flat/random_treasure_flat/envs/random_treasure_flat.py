@@ -6,7 +6,7 @@ import gym
 import numpy as np
 
 
-class RandomTreasure(gym.Env):
+class RandomTreasureFlat(gym.Env):
     metadata = {'render.modes': ['human']}
 
     def __init__(self):
@@ -43,43 +43,47 @@ class RandomTreasure(gym.Env):
     def step(self, action):
         self.steps += 1
         done = False
-        self.state = self.move_all(action)
+        self.move_box(0, 1, action)
 
-        convict = self.state[0:1][0]
-        loot = self.state[1:2][0]
+        # convict = self.state[0:1][0]
+        # loot = self.state[1:2][0]
 
-        #reward = self.distance_score(convict, loot)
+        # reward = self.distance_score(convict, loot)
         reward = 0
-        if self.check_things_on_same_spot(loot, convict):
+        convict_x = self.state[0]
+        convict_y = self.state[1]
+        if self.check_things_on_same_spot(convict_x, convict_y, self.state[2], self.state[3]):
             reward = 1
-            #done = True
+            # done = True
 
         if self.steps >= self.MAX_STEPS:
             done = True
-            #reward = -30
+            # reward = -30
 
         # print('reward=' + str(reward))
         # print('state=' + str(self.state))
         info = {'reward': reward, 'mystr': 'uuuctest'}
-        return np.array(self.state), reward, done, info
+        return self.state, reward, done, info
 
     def reset(self):
         # self.state = np.array([(8, 7), (3, 3), (2, 12), (13, 3), (13, 11), (6, 7), (8, 5), (8, 10)])
-        #possible_treasure_locations = [(10, 9), (6, 5), (10, 5), (6, 9)]
-        possible_treasure_locations = [(10, 10), (5, 4)]
-        treasure = random.choice(possible_treasure_locations)
-        self.state = np.array([(8, 7), treasure])
+        # possible_treasure_locations = [(10, 9), (6, 5), (10, 5), (6, 9)]
+        # possible_treasure_locations = [(10, 10), (5, 4)]
+        # treasure = random.choice(possible_treasure_locations)
+        self.state = np.array([8, 7, 10, 10])
         self.steps = 0
-        return np.array(self.state)
+        return self.state
 
     def render(self, mode='human', close=False):
         self.canvas.delete("all")
 
-        convict = self.state[0:1]
-        loot_box = self.state[1:2]
+        convict_x = self.state[0]
+        convict_y = self.state[1]
+        loot_x = self.state[2]
+        loot_y = self.state[3]
 
-        self.render_box(convict[0], 'orange')
-        self.render_box(loot_box[0], 'darkgreen')
+        self.render_box(convict_x, convict_y, 'orange')
+        self.render_box(loot_x, loot_y, 'darkgreen')
         self.root.update()
 
         if close:
@@ -87,17 +91,17 @@ class RandomTreasure(gym.Env):
         else:
             time.sleep(.4)
 
-    def can_move(self, box, action):
-        return (action == self.UP and box[1] > 0) or \
-               (action == self.RIGHT and box[0] < self.arena_size - 1) or \
-               (action == self.DOWN and box[1] < self.arena_size - 1) or \
-               (action == self.LEFT and box[0] > 0)
+    def can_move(self, x_ix, y_ix, action):
+        return (action == self.UP and self.state[y_ix] > 0) or \
+               (action == self.RIGHT and self.state[x_ix] < self.arena_size - 1) or \
+               (action == self.DOWN and self.state[y_ix] < self.arena_size - 1) or \
+               (action == self.LEFT and self.state[x_ix] > 0)
 
-    def render_box(self, position, color):
-        x1 = position[0] * self.box_pixels
-        x2 = (position[0] + 1) * self.box_pixels
-        y1 = position[1] * self.box_pixels
-        y2 = (position[1] + 1) * self.box_pixels
+    def render_box(self, position_x, position_y, color):
+        x1 = position_x * self.box_pixels
+        x2 = (position_x + 1) * self.box_pixels
+        y1 = position_y * self.box_pixels
+        y2 = (position_y + 1) * self.box_pixels
         self.canvas.create_rectangle(x1, y1, x2, y2, fill=color, width=0)
 
     def distance_score(self, position1, position2):
@@ -106,24 +110,18 @@ class RandomTreasure(gym.Env):
         moves_y = np.abs(position1[1] - position2[1])
         return 0.08 * (max_distance - moves_x) + 0.08 * (max_distance - moves_y)
 
-    def move_all(self, action):
-        convict = self.state[0:1]
-        loot_box = self.state[1:2]
-        convict[0] = np.array(self.move_box(convict[0], action))
-        return np.concatenate((convict, loot_box))
-
-    def move_box(self, box, action):
-        if action == self.NO_MOVE or not self.can_move(box, action):
-            return box
+    def move_box(self, x_ix, y_ix, action):
+        if action == self.NO_MOVE or not self.can_move(x_ix, y_ix, action):
+            pass
 
         if action == self.UP:
-            return box[0], box[1] - 1
+            self.state[y_ix] -= 1
         elif action == self.RIGHT:
-            return box[0] + 1, box[1]
+            self.state[x_ix] += 1
         elif action == self.DOWN:
-            return box[0], box[1] + 1
+            self.state[y_ix] += 1
         else:  # action == self.LEFT:
-            return box[0] - 1, box[1]
+            self.state[x_ix] -= 1
 
-    def check_things_on_same_spot(self, r1, r2):
-        return r1[0] == r2[0] and r1[1] == r2[1]
+    def check_things_on_same_spot(self, x1_ix, y1_ix, x2_ix, y2_ix):
+        return x1_ix == x2_ix and y1_ix == y2_ix

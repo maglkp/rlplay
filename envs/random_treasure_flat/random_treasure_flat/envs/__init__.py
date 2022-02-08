@@ -1,0 +1,1 @@
+from random_treasure_flat.envs.random_treasure_flat import RandomTreasureFlat
