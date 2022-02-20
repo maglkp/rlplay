@@ -1,0 +1,12 @@
+# shower function +/- 1, 25 len fixed episodes, 500k
+fail
+a2c_treasure_flat
+
+# shower function +/- 10 + distance, 25 len fixed episodes, 500k
+8,7 -> 9,8 fixed 1 treasure [2 moves away]
+A2C fail
+DQN
+
+# shower function +/- 10 + distance, 25 len fixed episodes, 500k
+8,7 -> 10,9 fixed 1 treasure [4 moves away]
+DQN OK
