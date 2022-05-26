@@ -68,10 +68,15 @@ class RandomTreasureFlat(gym.Env):
 
     def reset(self):
         # self.state = np.array([(8, 7), (3, 3), (2, 12), (13, 3), (13, 11), (6, 7), (8, 5), (8, 10)])
-        # possible_treasure_locations = [(10, 9), (6, 5), (10, 5), (6, 9)]
-        # possible_treasure_locations = [(10, 10), (5, 4)]
-        # treasure = random.choice(possible_treasure_locations)
-        self.state = np.array([8, 7, 10, 9])
+        possible_treasure_locations = [(10, 9), (6, 5), (6, 9), (10, 5), (11, 11), (3, 3)]
+        #possible_treasure_locations = [(10, 9), (9, 8)]
+
+        treasure = random.choice(possible_treasure_locations)
+        # if(treasure[0] == 6 and treasure[1] == 9):
+        #     print("(6,9)")
+        # else:
+        #     print(".")
+        self.state = np.array([8, 7, treasure[0], treasure[1]])
         self.steps = 0
         return self.state
 

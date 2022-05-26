@@ -10,3 +10,18 @@ DQN
 # shower function +/- 10 + distance, 25 len fixed episodes, 500k
 8,7 -> 10,9 fixed 1 treasure [4 moves away]
 DQN OK
+
+# shower function +/- 10 + distance, 25 len fixed episodes, 500k
+8,7 -> 10,9 OR 9,8  fixed 1 treasure [2, 4 moves away]
+DQN OK
+
+# shower function +/- 10 + distance, 25 len fixed episodes, 500k
+8,7 -> 4 different locations
+3 locations good, (10,5) bad (3rd one)
+3 locations good, (6,9) bad (3rd one)
+
+# Stable Baselines3
+6 treasures
+A2C 500k FAIL
+PPO 500k OK
+
