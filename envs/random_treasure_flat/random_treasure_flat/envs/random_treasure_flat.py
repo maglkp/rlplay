@@ -34,8 +34,8 @@ class RandomTreasureFlat(gym.Env):
         self.action_space = gym.spaces.Discrete(5)
         self.observation_space = gym.spaces.Box(low=0, high=15, shape=self.state.shape, dtype=np.uint8)
 
-        # self.box_pixels = 50
-        # self.init_tkinter()
+        self.box_pixels = 50
+        self.init_tkinter()
 
     def get_action_meanings(self):
         return ['UP', 'RIGHT', 'DOWN', 'LEFT', 'NO_MOVE']
@@ -99,26 +99,26 @@ class RandomTreasureFlat(gym.Env):
         self.steps = 0
         return self.state
 
-    def render(self, mode='human', close=False):
-        print('state=' + str(self.state))
-        pass
-
     # def render(self, mode='human', close=False):
-    #     self.canvas.delete("all")
-    #
-    #     convict_x = self.state[0]
-    #     convict_y = self.state[1]
-    #     loot_x = self.state[2]
-    #     loot_y = self.state[3]
-    #
-    #     self.render_box(convict_x, convict_y, 'orange')
-    #     self.render_box(loot_x, loot_y, 'darkgreen')
-    #     self.root.update()
-    #
-    #     if close:
-    #         self.root.destroy()
-    #     else:
-    #         time.sleep(.4)
+    #     print('state=' + str(self.state))
+    #     pass
+
+    def render(self, mode='human', close=False):
+        self.canvas.delete("all")
+
+        convict_x = self.state[0]
+        convict_y = self.state[1]
+        loot_x = self.state[2]
+        loot_y = self.state[3]
+
+        self.render_box(convict_x, convict_y, 'orange')
+        self.render_box(loot_x, loot_y, 'darkgreen')
+        self.root.update()
+
+        if close:
+            self.root.destroy()
+        else:
+            time.sleep(.4)
 
     def can_move(self, x_ix, y_ix, action):
         return (action == self.UP and self.state[y_ix] > 0) or \
