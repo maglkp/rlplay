@@ -5,13 +5,16 @@ from tkinter import *
 import gym
 import numpy as np
 
+# tkinter canvas axis
+# X left to right
+# y top to bottom
 
 class RandomTreasureFlat(gym.Env):
     metadata = {'render.modes': ['human']}
 
     # part I, no guards
     # reward, delta in treasure closeness +1
-    # spawn new treasure if got one, give +50
+    # spawn new treasure if got one, give +20
     # add rendering
 
     # part II, add stationary guards
@@ -27,6 +30,9 @@ class RandomTreasureFlat(gym.Env):
         self.MAX_STEPS = 50
         self.arena_size = 16
         self.possible_treasure_locations = [(10, 9), (6, 5), (6, 9), (10, 5), (11, 11), (3, 3)]
+        self.guards = [(8, 0), (8, 1), (8, 2), (8, 3), (8, 4), (8, 5), (8, 9), (8, 10), (8, 11),
+                       (8, 12), (8, 13), (8, 14), (8, 15)]
+        # (8, 6), (8, 8),
 
         self.reset()
         # print('shape is' + str(self.state.shape))
@@ -72,7 +78,10 @@ class RandomTreasureFlat(gym.Env):
             self.state[2] = new_loot[0]
             self.state[3] = new_loot[1]
 
-        if self.steps >= self.MAX_STEPS:
+        if (convict_x, convict_y) in self.guards:
+            reward = -30
+            done = True
+        elif self.steps >= self.MAX_STEPS:
             done = True
 
         info = {'distance_decreased': distance_decreased}
@@ -110,6 +119,9 @@ class RandomTreasureFlat(gym.Env):
         convict_y = self.state[1]
         loot_x = self.state[2]
         loot_y = self.state[3]
+
+        for guard in self.guards:
+            self.render_box(guard[0], guard[1], 'black')
 
         self.render_box(convict_x, convict_y, 'orange')
         self.render_box(loot_x, loot_y, 'darkgreen')
