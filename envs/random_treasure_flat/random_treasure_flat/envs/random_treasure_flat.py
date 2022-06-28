@@ -25,9 +25,9 @@ class RandomTreasureFlat(gym.Env):
         self.RIGHT = 1
         self.DOWN = 2
         self.LEFT = 3
-        self.NO_MOVE = 4
+        #self.NO_MOVE = 4
         self.num_actions = 5
-        self.MAX_STEPS = 50
+        self.MAX_STEPS = 100
         self.arena_size = 16
         self.possible_treasure_locations = [(10, 9), (6, 5), (6, 9), (10, 5), (11, 11), (3, 3)]
         self.guards = [(8, 0), (8, 1), (8, 2), (8, 3), (8, 4), (8, 5), (8, 9), (8, 10), (8, 11),
@@ -37,14 +37,14 @@ class RandomTreasureFlat(gym.Env):
         self.reset()
         # print('shape is' + str(self.state.shape))
         # print('shape 0 is' + str(self.state.shape[0]))
-        self.action_space = gym.spaces.Discrete(5)
+        self.action_space = gym.spaces.Discrete(4)
         self.observation_space = gym.spaces.Box(low=0, high=15, shape=self.state.shape, dtype=np.uint8)
 
         self.box_pixels = 50
         self.init_tkinter()
 
     def get_action_meanings(self):
-        return ['UP', 'RIGHT', 'DOWN', 'LEFT', 'NO_MOVE']
+        return ['UP', 'RIGHT', 'DOWN', 'LEFT']
 
     def init_tkinter(self):
         wh = self.arena_size * self.box_pixels
@@ -79,7 +79,7 @@ class RandomTreasureFlat(gym.Env):
             self.state[3] = new_loot[1]
 
         if (convict_x, convict_y) in self.guards:
-            reward = -30
+            reward = -80
             done = True
         elif self.steps >= self.MAX_STEPS:
             done = True
@@ -157,7 +157,8 @@ class RandomTreasureFlat(gym.Env):
         return moves_y + moves_x
 
     def move_box(self, x_ix, y_ix, action):
-        if action == self.NO_MOVE or not self.can_move(x_ix, y_ix, action):
+        #if action == self.NO_MOVE or not self.can_move(x_ix, y_ix, action):
+        if not self.can_move(x_ix, y_ix, action):
             return
 
         if action == self.UP:
